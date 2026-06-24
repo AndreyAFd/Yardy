@@ -13,7 +13,7 @@ class ActionCard extends StatelessWidget {
     required this.reward,
     required this.icon,
     required this.iconColor,
-    required this.onStartPressed,  
+    required this.onStartPressed,
   });
 
   @override

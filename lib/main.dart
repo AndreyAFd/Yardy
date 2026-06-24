@@ -113,7 +113,6 @@ class _MainScreenState extends State<MainScreen> {
             Expanded(
               child: ListView(
                 children: [
-                  // Карточка 1: Кофе
                   ActionCard(
                     title: 'Coffee Station',
                     reward: 'Earn 10 coins',
@@ -125,9 +124,9 @@ class _MainScreenState extends State<MainScreen> {
                   ActionCard(
                     title: 'BBQ Grill',
                     reward: 'Earn 25 coins',
-                    icon: Icons.outdoor_grill_rounded, // Новый красивый гриль
+                    icon: Icons.outdoor_grill_rounded,
                     iconColor: Colors.redAccent,
-                    onStartPressed: () => _addCoins(25), // Прибавляем 25
+                    onStartPressed: () => _addCoins(25),
                   ),
 
                   ActionCard(
