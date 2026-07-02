@@ -22,7 +22,7 @@ class ActionCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(icon, size: 40, color: const Color.fromARGB(255, 100, 181, 246)),
+          Icon(icon, size: 40, color: const Color.fromARGB(255, 227, 4, 231)),
           const SizedBox(width: 16),
           Expanded(
             child: Text(

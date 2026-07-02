@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 
+final ValueNotifier<ThemeMode> themeNotifier = ValueNotifier(ThemeMode.dark);
+
 void main() {
   runApp(const YardyApp());
 }
@@ -10,73 +12,157 @@ class YardyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Yardy',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: const Color(0xff121212),
-      ),
-      home: const HomeScreen(),
+    return ValueListenableBuilder<ThemeMode>(
+      valueListenable: themeNotifier,
+      builder: (_, ThemeMode currentMode, __) {
+        return MaterialApp(
+          title: 'Yardy',
+          debugShowCheckedModeBanner: false,
+          themeMode: currentMode,
+          theme: ThemeData(
+            useMaterial3: true,
+            brightness: Brightness.light,
+            scaffoldBackgroundColor: const Color(0xFFF5F5F5),
+            appBarTheme: const AppBarTheme(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              iconTheme: IconThemeData(color: Colors.black),
+              titleTextStyle: TextStyle(
+                color: Colors.black,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          darkTheme: ThemeData(
+            useMaterial3: true,
+            brightness: Brightness.dark,
+            scaffoldBackgroundColor: const Color(0xFF121212),
+            appBarTheme: const AppBarTheme(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              iconTheme: IconThemeData(color: Colors.white),
+              titleTextStyle: TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          home: const HomeScreen(),
+        );
+      },
     );
   }
 }
 
-// --- ПЕРВЫЙ ЭКРАН (START) ---
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
+
+  void _showThemeDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Select Theme'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                title: const Text('Dark Mode'),
+                leading: const Icon(Icons.dark_mode),
+                onTap: () {
+                  themeNotifier.value = ThemeMode.dark;
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                title: const Text('Light Mode'),
+                leading: const Icon(Icons.light_mode),
+                onTap: () {
+                  themeNotifier.value = ThemeMode.light;
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Yardy', style: TextStyle(fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
+        title: const Text('Yardy'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () => _showThemeDialog(context),
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.start, // Все блоки строго сверху
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               const SizedBox(height: 8),
-              // Блок 1: Кофе
               ActionCard(
                 title: 'Coffee',
                 icon: Icons.local_cafe,
-                iconColor: Colors.white,
+                iconColorDark: const Color(0xFFFFFFFF),
+                iconColorLight: const Color(0xFF8D6E63),
                 onStartPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const CoffeeScreen()));
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const CoffeeScreen()),
+                  );
                 },
               ),
               const SizedBox(height: 16),
-              // Блок 2: Мангал
               ActionCard(
                 title: 'BBQ Grill',
                 icon: Icons.outdoor_grill,
-                iconColor: Colors.orangeAccent,
+                iconColorDark: const Color(0xFFFFB74D),
+                iconColorLight: const Color(0xFFE65100),
                 onStartPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const GrillScreen()));
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const GrillScreen()),
+                  );
                 },
               ),
               const SizedBox(height: 16),
-              // Блок 3: Вода
               ActionCard(
                 title: 'Water',
                 icon: Icons.water_drop,
-                iconColor: Colors.blue,
+                iconColorDark: const Color(0xFF4FC3F7),
+                iconColorLight: const Color(0xFF0288D1),
                 onStartPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const WaterScreen()));
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const WaterScreen()),
+                  );
                 },
               ),
               const SizedBox(height: 16),
-              // Блок 4: Milkshake
               ActionCard(
                 title: 'Milkshake',
                 icon: Icons.local_bar,
-                iconColor: const Color(0xFFFFC0CB),
+                iconColorDark: const Color(0xFFFFC0CB),
+                iconColorLight: const Color(0xFFC2185B),
                 onStartPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const MilkshakeScreen()));
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const MilkshakeScreen()),
+                  );
                 },
               ),
             ],
@@ -87,40 +173,68 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-// Компонент карточки на главном экране
 class ActionCard extends StatelessWidget {
   final String title;
   final IconData icon;
-  final Color iconColor;
+  final Color iconColorDark;
+  final Color iconColorLight;
   final VoidCallback onStartPressed;
 
   const ActionCard({
     super.key,
     required this.title,
     required this.icon,
-    required this.iconColor,
+    required this.iconColorDark,
+    required this.iconColorLight,
     required this.onStartPressed,
   });
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E1E1E),
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
         borderRadius: BorderRadius.circular(16),
+        boxShadow: isDark
+            ? []
+            : [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                )
+              ],
       ),
       child: Row(
         children: [
-          Icon(icon, size: 40, color: iconColor),
+          Icon(
+            icon,
+            size: 40,
+            color: isDark ? iconColorDark : iconColorLight,
+          ),
           const SizedBox(width: 16),
           Expanded(
-            child: Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
+            child: Text(
+              title,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: isDark ? Colors.white : Colors.black,
+              ),
+            ),
           ),
           ElevatedButton(
             onPressed: onStartPressed,
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-            child: const Text('Start', style: TextStyle(color: Colors.white)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF12D639),
+              foregroundColor: Colors.black,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8)),
+            ),
+            child: const Text('Start'),
           ),
         ],
       ),
@@ -128,7 +242,6 @@ class ActionCard extends StatelessWidget {
   }
 }
 
-// --- ЭКРАН: КОФЕ ---
 class CoffeeScreen extends StatefulWidget {
   const CoffeeScreen({super.key});
 
@@ -170,8 +283,10 @@ class _CoffeeScreenState extends State<CoffeeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Coffee'), backgroundColor: Colors.transparent, elevation: 0),
+      appBar: AppBar(title: const Text('Coffee')),
       body: GestureDetector(
         onTapDown: (_) => _startTimer(),
         onTapUp: (_) => _stopAndResetTimer(),
@@ -184,17 +299,35 @@ class _CoffeeScreenState extends State<CoffeeScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Text(_isPouring ? 'Pouring...' : 'Press and hold to pour', style: const TextStyle(fontSize: 16, color: Colors.grey)),
+              Text(
+                _isPouring ? 'Pouring...' : 'Press and hold to pour',
+                style: const TextStyle(fontSize: 16, color: Colors.grey),
+              ),
               const SizedBox(height: 20),
-              Text(_formatTime(), style: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold, fontFamily: 'monospace', color: Colors.amber)),
+              Text(
+                _formatTime(),
+                style: const TextStyle(
+                  fontSize: 48,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'monospace',
+                  color: Colors.amber,
+                ),
+              ),
               const SizedBox(height: 20),
               AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
                 height: _isPouring ? 100 : 0,
                 width: 4,
-                decoration: BoxDecoration(color: Colors.brown[700], borderRadius: BorderRadius.circular(4)),
+                decoration: BoxDecoration(
+                  color: Colors.brown[700],
+                  borderRadius: BorderRadius.circular(4),
+                ),
               ),
-              const Icon(Icons.local_cafe, size: 100, color: Colors.white),
+              Icon(
+                Icons.local_cafe,
+                size: 100,
+                color: isDark ? Colors.white : Colors.brown[400],
+              ),
             ],
           ),
         ),
@@ -203,7 +336,6 @@ class _CoffeeScreenState extends State<CoffeeScreen> {
   }
 }
 
-// --- ЭКРАН: МАНГАЛ ---
 class GrillScreen extends StatefulWidget {
   const GrillScreen({super.key});
 
@@ -246,7 +378,7 @@ class _GrillScreenState extends State<GrillScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('BBQ Grill'), backgroundColor: Colors.transparent, elevation: 0),
+      appBar: AppBar(title: const Text('BBQ Grill')),
       body: GestureDetector(
         onTapDown: (_) => _startTimer(),
         onTapUp: (_) => _stopAndResetTimer(),
@@ -259,30 +391,46 @@ class _GrillScreenState extends State<GrillScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Text(_isHeating ? 'Fanning the flames! 🔥' : 'Press and hold to heat up coals', style: const TextStyle(fontSize: 16, color: Colors.grey)),
+              Text(
+                _isHeating
+                    ? 'Fanning the flames!'
+                    : 'Press and hold to heat up coals',
+                style: const TextStyle(fontSize: 16, color: Colors.grey),
+              ),
               const SizedBox(height: 20),
-              Text(_formatTime(), style: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold, fontFamily: 'monospace', color: Colors.deepOrangeAccent)),
-              const SizedBox(height: 20),
-              AnimatedOpacity(
-                duration: const Duration(milliseconds: 300),
-                opacity: _isHeating ? 0.6 : 0.0,
-                child: const Column(
-                  children: [
-                    Text('💨', style: TextStyle(fontSize: 24)),
-                    Text(' 💨', style: TextStyle(fontSize: 20)),
-                  ],
+              Text(
+                _formatTime(),
+                style: const TextStyle(
+                  fontSize: 48,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'monospace',
+                  color: Colors.deepOrangeAccent,
                 ),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 20),
               AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: _isHeating ? Colors.redAccent.withOpacity(0.2) : Colors.transparent,
-                  boxShadow: _isHeating ? [BoxShadow(color: Colors.orange.withOpacity(0.5), blurRadius: 40, spreadRadius: 10)] : [],
+                  color: _isHeating
+                      ? Colors.redAccent.withOpacity(0.2)
+                      : Colors.transparent,
+                  boxShadow: _isHeating
+                      ? [
+                          BoxShadow(
+                            color: Colors.orange.withOpacity(0.5),
+                            blurRadius: 40,
+                            spreadRadius: 10,
+                          )
+                        ]
+                      : [],
                 ),
-                child: Icon(Icons.outdoor_grill, size: 100, color: _isHeating ? Colors.deepOrange : Colors.grey[600]),
+                child: Icon(
+                  Icons.outdoor_grill,
+                  size: 100,
+                  color: _isHeating ? Colors.deepOrange : Colors.grey[600],
+                ),
               ),
             ],
           ),
@@ -292,7 +440,6 @@ class _GrillScreenState extends State<GrillScreen> {
   }
 }
 
-// --- ЭКРАН: ВОДА ---
 class WaterScreen extends StatefulWidget {
   const WaterScreen({super.key});
 
@@ -335,7 +482,7 @@ class _WaterScreenState extends State<WaterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Water'), backgroundColor: Colors.transparent, elevation: 0),
+      appBar: AppBar(title: const Text('Water')),
       body: GestureDetector(
         onTapDown: (_) => _startTimer(),
         onTapUp: (_) => _stopAndResetTimer(),
@@ -348,15 +495,31 @@ class _WaterScreenState extends State<WaterScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Text(_isFlowing ? 'Water is flowing...' : 'Press and hold to open the tap', style: const TextStyle(fontSize: 16, color: Colors.grey)),
+              Text(
+                _isFlowing
+                    ? 'Water is flowing...'
+                    : 'Press and hold to open the tap',
+                style: const TextStyle(fontSize: 16, color: Colors.grey),
+              ),
               const SizedBox(height: 20),
-              Text(_formatTime(), style: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold, fontFamily: 'monospace', color: Colors.blueAccent)),
+              Text(
+                _formatTime(),
+                style: const TextStyle(
+                  fontSize: 48,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'monospace',
+                  color: Colors.blueAccent,
+                ),
+              ),
               const SizedBox(height: 20),
               AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
                 height: _isFlowing ? 100 : 0,
                 width: 6,
-                decoration: BoxDecoration(color: Colors.blue[300], borderRadius: BorderRadius.circular(4)),
+                decoration: BoxDecoration(
+                  color: Colors.blue[300],
+                  borderRadius: BorderRadius.circular(4),
+                ),
               ),
               const Icon(Icons.water_drop, size: 100, color: Colors.blue),
             ],
@@ -367,7 +530,6 @@ class _WaterScreenState extends State<WaterScreen> {
   }
 }
 
-// --- ЭКРАН: МОЛОЧНЫЙ КОКТЕЙЛЬ ---
 class MilkshakeScreen extends StatefulWidget {
   const MilkshakeScreen({super.key});
 
@@ -410,7 +572,7 @@ class _MilkshakeScreenState extends State<MilkshakeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Milkshake'), backgroundColor: Colors.transparent, elevation: 0),
+      appBar: AppBar(title: const Text('Milkshake')),
       body: GestureDetector(
         onTapDown: (_) => _startTimer(),
         onTapUp: (_) => _stopAndResetTimer(),
@@ -423,15 +585,29 @@ class _MilkshakeScreenState extends State<MilkshakeScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Text(_isMixing ? 'Mixing shake...' : 'Press and hold to mix', style: const TextStyle(fontSize: 16, color: Colors.grey)),
+              Text(
+                _isMixing ? 'Mixing shake...' : 'Press and hold to mix',
+                style: const TextStyle(fontSize: 16, color: Colors.grey),
+              ),
               const SizedBox(height: 20),
-              Text(_formatTime(), style: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold, fontFamily: 'monospace', color: Color(0xFFFFB6C1))),
+              Text(
+                _formatTime(),
+                style: const TextStyle(
+                  fontSize: 48,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'monospace',
+                  color: Color(0xFFFFB6C1),
+                ),
+              ),
               const SizedBox(height: 20),
               AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
                 height: _isMixing ? 100 : 0,
                 width: 6,
-                decoration: BoxDecoration(color: const Color(0xFFFFF0F5), borderRadius: BorderRadius.circular(4)),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFF0F5),
+                  borderRadius: BorderRadius.circular(4),
+                ),
               ),
               const Icon(Icons.local_bar, size: 100, color: Color(0xFFFFC0CB)),
             ],
